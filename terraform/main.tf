@@ -29,7 +29,7 @@ resource "aws_s3_bucket_public_access_block" "block" {
 
 # Creates a new Origin Access Control (OAC). 
 resource "aws_cloudfront_origin_access_control" "oac" {
-  name                              = "static-site-oac"
+  name                              = "static-site-oac-v2"
   description                       = "OAC for S3 static site access via CloudFront"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always" 
