@@ -1,0 +1,24 @@
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Local config file with sensitive data
+override.tf
+override.tf.json
+
+# Crash logs
+crash.log
+
+# Dependency lock file
+.terraform.lock.hcl
+
+# Local Terraform directories
+.terraform/
+
+# ------------------------------------
+# Operating System files
+# ------------------------------------
+.DS_Store
+Thumbs.db
+
+.env
