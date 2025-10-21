@@ -1,12 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Terraform S3 Project</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform S3/CloudFront CI/CD Project</title>
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50; /* Dark blue/gray */
+            --secondary-color: #3498db; /* Bright blue */
+            --background-color: #ecf0f1; /* Light gray */
+            --text-color: #34495e; /* Darker gray */
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.5em;
+            margin-top: 0;
+            font-weight: 300;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        p {
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .feature-list li {
+            background-color: #f6f8f9;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 8px;
+            flex-basis: calc(33% - 20px);
+            min-width: 200px;
+            font-weight: bold;
+            color: var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .repo-link {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .repo-link:hover {
+            background-color: #2980b9; /* Slightly darker blue */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
 <body>
-   <p text-align="center">The code has successfully been pushed to an S3 bucket. You are accessing it from a CloudFront distribution.</p>
-   <p text-align="center">This project is located at: <a href="https://github.com/abdullah2202/tf_s3_staticWeb">github.com/abdullah2202/tf_s3_staticWeb</a></p>
+    <div class="container">
+        <h1>Cloud-Native Static Website Deployment</h1>
+        <h2>Terraform, S3 & CloudFront CI/CD Pipeline</h2>
+
+        <p>
+            This project showcases a professional, fully automated pipeline for hosting a static website on Amazon Web Services (AWS). It leverages **Infrastructure as Code (IaC)** principles to provision and manage all cloud resources.
+        </p>
+
+        <ul class="feature-list">
+            <li>⚙️ **Infrastructure as Code (IaC):** Terraform manages all AWS resources.</li>
+            <li>☁️ **CloudFront CDN:** Provides a fast, global delivery network with automatic HTTPS.</li>
+            <li>🔒 **S3 Security:** Content stored privately, only accessible via Origin Access Control (OAC).</li>
+            <li>🔄 **GitHub Actions:** CI/CD pipeline for automatic infrastructure changes, content sync, and cache invalidation.</li>
+        </ul>
+
+        <p>
+            Any code changes pushed to the repository automatically trigger the pipeline, ensuring immediate deployment and consistency across the environment.
+        </p>
+
+        <a 
+            class="repo-link" 
+            href="https://github.com/abdullah2202/tf_s3_staticWeb" 
+            target="_blank"
+        >
+            View the GitHub Repository
+        </a>
+    </div>
 </body>
 </html>
