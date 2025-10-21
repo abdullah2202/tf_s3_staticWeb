@@ -80,7 +80,7 @@ data "aws_cloudfront_cache_policy" "caching_optimized" {
 }
 
 data "aws_cloudfront_origin_request_policy" "s3_origin" {
-  name = "Managed-CORS-S3-Origin"
+  name = "Managed-AllViewerExceptHostHeader"
 }
 
 # Creates the CloudFront Distribution, which is the public-facing endpoint (CDN).
