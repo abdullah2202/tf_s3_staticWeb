@@ -73,6 +73,16 @@ resource "aws_s3_bucket_policy" "s3_policy" {
 }
 
 
+# NEW: Data Sources to look up the managed policies
+
+data "aws_cloudfront_cache_policy" "caching_optimized" {
+  name = "Managed-CachingOptimized"
+}
+
+data "aws_cloudfront_origin_request_policy" "s3_origin" {
+  name = "Managed-CORS-S3-Origin"
+}
+
 # Creates the CloudFront Distribution, which is the public-facing endpoint (CDN).
 resource "aws_cloudfront_distribution" "s3_distribution" {
   
@@ -85,7 +95,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   enabled             = true
   is_ipv6_enabled     = true
-  # REFERENCES THE VARIABLE FROM terraform.tfvars
   default_root_object = var.root_object 
 
   # Configuration for the default content serving behavior.
@@ -95,8 +104,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     target_origin_id = aws_s3_bucket.website_bucket.id
     viewer_protocol_policy = "redirect-to-https" 
     
-    cache_policy_id        = "658327ea-f89d-4acd-9160-54f53d2d8546" 
-    origin_request_policy_id = "216adef6-5c7f-47a3-b47e-693a11e2f790" 
+    cache_policy_id        = data.aws_cloudfront_cache_policy.caching_optimized.id 
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.s3_origin.id
   }
 
   # Geographic restriction settings (none for unrestricted access).
