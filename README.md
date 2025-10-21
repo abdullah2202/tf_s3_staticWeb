@@ -1,8 +1,8 @@
-# 🚀 Static Website Deployment: AWS S3, CloudFront, Terraform & GitHub Actions
+# Static Website Deployment: AWS S3, CloudFront, Terraform & GitHub Actions
 
 This project demonstrates a fully automated, production-ready pipeline for deploying a static website to Amazon Web Services (AWS) using **Infrastructure as Code (IaC)** with **Terraform** and **Continuous Deployment (CD)** with **GitHub Actions**.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 The infrastructure is provisioned using Terraform and follows modern security best practices:
 
@@ -18,7 +18,7 @@ The infrastructure is provisioned using Terraform and follows modern security be
 
 ---
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 Before deploying, you must have the following items configured:
 
@@ -44,7 +44,7 @@ The following secrets must be configured in your GitHub repository (**Settings**
 
 ---
 
-## 💻 Deployment Workflow
+## Deployment Workflow
 
 The workflow is managed entirely by GitHub Actions, typically triggered by a push to the `main` branch.
 
@@ -68,7 +68,7 @@ To update your website, simply modify files in the **`website/`** directory, com
 
 ---
 
-## 🔗 Accessing the Website
+## Accessing the Website
 
 Once the `terraform apply` step is complete, the website is live.
 
