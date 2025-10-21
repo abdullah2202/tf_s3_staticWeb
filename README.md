@@ -2,52 +2,77 @@
 
 This project demonstrates a fully automated, production-ready pipeline for deploying a static website to Amazon Web Services (AWS) using **Infrastructure as Code (IaC)** with **Terraform** and **Continuous Deployment (CD)** with **GitHub Actions**.
 
-## 🏗️ Architecture
+## 🏗️ Architecture Overview
 
 The infrastructure is provisioned using Terraform and follows modern security best practices:
 
-1.  **Amazon S3:** Stores the static website files privately.
-2.  **AWS CloudFront (CDN):** Serves as the Content Delivery Network, providing a global edge network for low-latency delivery, caching, and **HTTPS/SSL**.
-3.  **Origin Access Control (OAC):** Ensures the S3 bucket is only accessible via the specified CloudFront distribution, keeping the content secure and non-public.
-4.  **GitHub Actions:** Automates two key processes:
-    * **IaC Pipeline:** Runs `terraform apply` to provision or update the AWS infrastructure.
-    * **CD Pipeline:** Syncs local website files to S3 and invalidates the CloudFront cache upon every push to the `main` branch.
+| Component | Purpose | Security Note |
+| :--- | :--- | :--- |
+| **Amazon S3 (Content)** | Stores the static website files (HTML, CSS, JS, etc.). | **Kept Private** and inaccessible directly from the public internet. |
+| **Amazon S3 (Backend State)** | A separate, versioned S3 bucket used to store the **`terraform.tfstate`** file. | **Crucial** for state consistency across all automated deployments. |
+| **AWS CloudFront (CDN)** | Serves as the Content Delivery Network, providing low-latency delivery, caching, and **HTTPS/SSL**. | Publicly exposed endpoint for the website. |
+| **Origin Access Control (OAC)** | Securely connects CloudFront to the private S3 bucket. | Enforces that only CloudFront can retrieve content from S3. |
+| **GitHub Actions** | Automates both the infrastructure provisioning and the content deployment lifecycle. | Uses secure GitHub Secrets for AWS authentication. |
 
 
+
+---
 
 ## 🛠️ Prerequisites
 
-Before deploying, you must have the following:
+Before deploying, you must have the following items configured:
 
-1.  **AWS Account:** With credentials configured.
-2.  **GitHub Repository:** This repository (where the code lives).
-3.  **AWS Credentials in GitHub Secrets:**
-    * `AWS_ACCESS_KEY_ID`
-    * `AWS_SECRET_ACCESS_KEY`
-    * `AWS_REGION` (e.g., `us-east-1`)
-    * `S3_BUCKET_NAME` (Must match the `var.bucket_name` in `variables.tf`)
-    * `CLOUDFRONT_DISTRIBUTION_ID` (Retrieved after the first Terraform apply)
+### 1. AWS Remote State Backend
 
-## 💻 Deployment Steps
+You must set up a dedicated S3 bucket to store your Terraform state. This bucket must be created **manually** or outside of this project's Terraform code.
 
-### 1. Provision Infrastructure (Terraform)
+* **Create a Bucket:** Create a new S3 bucket (e.g., `my-project-tf-state-2025`).
+* **Enable Versioning:** Ensure **Versioning** is enabled on this state bucket.
+* **Update Configuration:** Verify your **`backend.tf`** file correctly references this new bucket.
 
-The **`terraform`** job in the GitHub Action workflow handles this automatically on push.
+### 2. GitHub Secrets
 
-* **Files:** Located in the `terraform/` directory.
-* **Resources:** S3 Bucket, S3 Bucket Policy (OAC access), CloudFront Distribution, and OAC.
+The following secrets must be configured in your GitHub repository (**Settings** > **Secrets** > **Actions**):
 
-### 2. Deploy Content (CI/CD)
+| Secret Name | Purpose | Value Source |
+| :--- | :--- | :--- |
+| `AWS_ACCESS_KEY_ID` | IAM user Access Key ID for authentication. | AWS IAM Console |
+| `AWS_SECRET_ACCESS_KEY` | IAM user Secret Access Key for authentication. | AWS IAM Console |
+| `AWS_REGION` | The region where resources are deployed (e.g., `us-east-1`). | `terraform.tfvars` |
+| `S3_BUCKET_NAME` | The **unique** name of the content bucket. | `terraform.tfvars` (`bucket_name`) |
+| `CLOUDFRONT_DISTRIBUTION_ID` | The ID of the CDN used for cache invalidation. | **AWS Console / Terraform Output** (Add after the first successful deploy) |
 
-The **`deploy_content`** job automatically handles deployment after the infrastructure is ready.
+---
 
-1.  **Sync:** Copies the contents of the local `website/` directory to the S3 bucket using `aws s3 sync --delete`.
-2.  **Cache Invalidation:** Issues a command to CloudFront to invalidate the cache (`--paths "/*"`), forcing all edge locations to pull the new content from S3, ensuring users see the updated website immediately.
+## 💻 Deployment Workflow
+
+The workflow is managed entirely by GitHub Actions, typically triggered by a push to the `main` branch.
+
+### 1. Provision Infrastructure (Initial Run)
+
+The first successful run of the workflow will:
+
+* **Initialize:** Run `terraform init -reconfigure` to connect to the S3 backend and confirm the state.
+* **Create:** Provision the S3 Bucket, CloudFront OAC, and CloudFront Distribution.
+* **Complete:** The process usually takes **10–20 minutes** as AWS deploys the CloudFront distribution globally.
+
+### 2. Subsequent Runs (Content Updates)
+
+After the initial setup, every push to `main` will:
+
+* **State Check:** The Terraform job will run, quickly checking the remote S3 state and finding **no changes** to the infrastructure.
+* **Content Sync:** The deployment job runs `aws s3 sync` to upload only the new or modified files (e.g., your updated `index.html`) to the private S3 bucket.
+* **Cache Invalidation:** The final step runs `aws cloudfront create-invalidation` to immediately clear the old content from the CDN, ensuring the new version is served to all users.
+
+To update your website, simply modify files in the **`website/`** directory, commit, and push to `main`.
+
+---
 
 ## 🔗 Accessing the Website
 
-Once the CI/CD pipeline completes successfully, your website will be accessible via the CloudFront Domain Name.
+Once the `terraform apply` step is complete, the website is live.
 
-Find the domain name in the AWS console or look at the outputs from the Terraform job in the GitHub Actions run history:
+To find the URL:
 
-**CloudFront URL Example:** `https://d12345abcdefgh.cloudfront.net`
+1.  View the **Outputs** of the successful Terraform job in the GitHub Actions history.
+2.  Alternatively, go to the **AWS CloudFront Console**, find the distribution, and copy the **Domain Name** (it will look like `https://d12345abcdefgh.cloudfront.net`).
