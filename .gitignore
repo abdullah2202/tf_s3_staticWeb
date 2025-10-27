@@ -15,10 +15,10 @@ crash.log
 # Local Terraform directories
 .terraform/
 
-# ------------------------------------
+
 # Operating System files
-# ------------------------------------
 .DS_Store
 Thumbs.db
 
+# Environment Files
 .env

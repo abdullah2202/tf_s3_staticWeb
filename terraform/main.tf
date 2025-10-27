@@ -1,16 +1,12 @@
-# main.tf - Static Website Infrastructure using S3 and CloudFront
-
-# Configure the AWS Provider and specify the region using the variable
 provider "aws" {
   region = var.region
 }
 
-# The S3 bucket where the static website files will be stored.
+# The S3 bucket where the static website files will be stored
 resource "aws_s3_bucket" "website_bucket" {
   bucket = var.bucket_name 
   
-  # Ensures the bucket and its contents are deleted when running 'terraform destroy'.
-  # WARNING: Use with caution in production environments!
+  # Ensures the bucket and its contents are deleted when running 'terraform destroy'
   force_destroy = true 
   tags = {
     Name    = "StaticWebsiteBucket-${var.bucket_name}"
@@ -18,7 +14,7 @@ resource "aws_s3_bucket" "website_bucket" {
   }
 }
 
-# Block all public access settings for the S3 bucket.
+# Block all public access settings for the S3 bucket
 resource "aws_s3_bucket_public_access_block" "block" {
   bucket                  = aws_s3_bucket.website_bucket.id
   block_public_acls       = true
@@ -27,7 +23,7 @@ resource "aws_s3_bucket_public_access_block" "block" {
   restrict_public_buckets = true
 }
 
-# Creates a new Origin Access Control (OAC). 
+# Creates a new Origin Access Control (OAC)
 resource "aws_cloudfront_origin_access_control" "oac" {
   name                              = "static-site-oac-v3"
   description                       = "OAC for S3 static site access via CloudFront"
@@ -37,7 +33,7 @@ resource "aws_cloudfront_origin_access_control" "oac" {
 }
 
 
-# Data source for generating the IAM policy document.
+# Data source for generating the IAM policy document
 data "aws_iam_policy_document" "s3_policy" {
   statement {
     sid = "AllowCloudFrontServicePrincipalReadOnly"
@@ -64,16 +60,13 @@ data "aws_iam_policy_document" "s3_policy" {
   }
 }
 
-# Attaches the generated policy to the S3 bucket.
+# Attaches the generated policy to the S3 bucket
 resource "aws_s3_bucket_policy" "s3_policy" {
   bucket = aws_s3_bucket.website_bucket.id
   policy = data.aws_iam_policy_document.s3_policy.json
-  # Explicit dependency needed because the policy needs the distribution's ARN.
+  # Explicit dependency needed because the policy needs the distribution's ARN
   depends_on = [aws_cloudfront_distribution.s3_distribution] 
 }
-
-
-# NEW: Data Sources to look up the managed policies
 
 data "aws_cloudfront_cache_policy" "caching_optimized" {
   name = "Managed-CachingOptimized"
@@ -83,10 +76,10 @@ data "aws_cloudfront_origin_request_policy" "s3_origin" {
   name = "Managed-AllViewerExceptHostHeader"
 }
 
-# Creates the CloudFront Distribution, which is the public-facing endpoint (CDN).
+# Creates the CloudFront Distribution
 resource "aws_cloudfront_distribution" "s3_distribution" {
   
-  # Defines the origin (source of content) as the private S3 bucket.
+  # Defines the origin as the private S3 bucket
   origin {
     domain_name              = aws_s3_bucket.website_bucket.bucket_regional_domain_name
     origin_id                = aws_s3_bucket.website_bucket.id
@@ -97,7 +90,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   is_ipv6_enabled     = true
   default_root_object = var.root_object 
 
-  # Configuration for the default content serving behavior.
+  # Configuration for the default content serving behavior
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"] 
     cached_methods   = ["GET", "HEAD"]
@@ -108,14 +101,14 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.s3_origin.id
   }
 
-  # Geographic restriction settings (none for unrestricted access).
+  # Geographic restriction settings
   restrictions {
     geo_restriction {
       restriction_type = "none"
     }
   }
 
-  # Viewer certificate setup.
+  # Viewer certificate setup
   viewer_certificate {
     cloudfront_default_certificate = true 
   }
