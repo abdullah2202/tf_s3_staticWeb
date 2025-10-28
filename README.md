@@ -16,8 +16,6 @@ The infrastructure is provisioned using Terraform and follows modern security be
 
 
 
----
-
 ## Prerequisites
 
 Before deploying, you must have the following items configured:
@@ -42,7 +40,6 @@ The following secrets must be configured in your GitHub repository (**Settings**
 | `S3_BUCKET_NAME` | The **unique** name of the content bucket. | `terraform.tfvars` (`bucket_name`) |
 | `CLOUDFRONT_DISTRIBUTION_ID` | The ID of the CDN used for cache invalidation. | **AWS Console / Terraform Output** (Add after the first successful deploy) |
 
----
 
 ## Deployment Workflow
 
@@ -66,7 +63,6 @@ After the initial setup, every push to `main` will:
 
 To update your website, simply modify files in the **`website/`** directory, commit, and push to `main`.
 
----
 
 ## Accessing the Website
 
